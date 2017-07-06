@@ -1,7 +1,7 @@
 %define smartmetroot /smartmet
 
 Name:           smartmet-data-gem
-Version:        17.4.19
+Version:        17.7.6
 Release:        1%{?dist}.fmi
 Summary:        SmartMet Data GEM
 Group:          System Environment/Base
@@ -83,6 +83,8 @@ rm -rf $RPM_BUILD_ROOT
 %{smartmetroot}/*
 
 %changelog
+* Thu Jul 6 2017 Mikko Rauhala <mikko.rauhala@fmi.fi> 17.7.6-1.el7.fmi
+- Updated script to log stdout if run from terminal
 * Wed Apr 19 2017 Mikko Rauhala <mikko.rauhala@fmi.fi> 17.1.19-1.el6.fmi
 - Updated file names
 * Wed Jan 18 2017 Mikko Rauhala <mikko.rauhala@fmi.fi> 17.1.18-1.el6.fmi

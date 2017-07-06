@@ -20,33 +20,96 @@ if [ -z "$AREA" ]; then
     AREA=world
 fi
 
+if [ -z "$TOP" ]; then
+    TOP=90
+fi
 
-OUT=/smartmet/data/gem/$AREA
-DICTIONARY=/smartmet/cnf/dictionary_en.conf
-EDITOR=/smartmet/editor/in
+if [ -z "$BOTTOM" ]; then
+    BOTTOM=-90
+fi
+
+if [ -z "$LEFT" ]; then
+    LEFT=0
+fi
+
+if [ -z "$RIGHT" ]; then
+    RIGHT=360
+fi
+
+if [ -z "$INTERVALS" ]; then
+    INTERVALS=("0 3 126" "132 6 192")
+fi
+
+while getopts  "a:b:di:l:r:t:" flag
+do
+  case "$flag" in
+        a) AREA=$OPTARG;;
+        d) DRYRUN=1;;
+        i) INTERVALS=("$OPTARG");;
+        l) LEFT=$OPTARG;;
+        r) RIGHT=$OPTARG;;
+        t) TOP=$OPTARG;;
+        b) BOTTOM=$OPTARG;;
+  esac
+done
+
+STEP=6
+# Model Reference Time
+RT=`date -u +%s -d '-3 hours'`
+RT="$(( $RT / ($STEP * 3600) * ($STEP * 3600) ))"
+RT_HOUR=`date -u -d@$RT +%H`
+RT_DATE_HH=`date -u -d@$RT +%Y%m%d%H`
+RT_DATE_HHMM=`date -u -d@$RT +%Y%m%d%H%M`
+RT_ISO=`date -u -d@$RT +%Y-%m-%dT%H:%M:%SZ`
+
+if [ -d /smartmet ]; then
+    OUT=/smartmet/data/gem/$AREA
+    DICTIONARY=/smartmet/cnf/dictionary_en.conf
+    EDITOR=/smartmet/editor/in
+    TMP=/smartmet/tmp/data/gem_${AREA}_${RT_DATE_HHMM}
+    LOGFILE=/smartmet/logs/data/gem${RT_HOUR}.log
+else
+    OUT=$HOME/data/gem/$AREA
+    DICTIONARY=/smartmet/cnf/dictionary_en.conf
+    EDITOR=/smartmet/editor/in
+    TMP=/tmp/gem_${AREA}_${RT_DATE_HHMM}
+    LOGFILE=/smartmet/logs/data/gem${RT_HOUR}.log
+fi
+
+OUTNAME=${RT_DATE_HHMM}_gem_$AREA
 
 UTCHOUR=`date -u +%H -d '-4 hours'`
 RUN=`expr $UTCHOUR / 12 \* 12`
 RUN=`printf %02d $RUN`
 DATE=`date -u +%Y%m%d${RUN}00 -d '-4 hours'`
 RUNDATE=`date -u +%Y%m%d -d '-4 hours'`
-TMP=/smartmet/tmp/data/gem/$AREA/$DATE
-LOGFILE=/smartmet/logs/data/gem${RUN}.log
 
-# Log everything
-exec &> $LOGFILE
+# Use log file if not run interactively
+if [ $TERM = "dumb" ]; then
+    exec &> $LOGFILE
+fi
+
+echo "Model Reference Time: $RT_ISO"
+echo "Area: $AREA left:$LEFT right:$RIGHT top:$TOP bottom:$BOTTOM"
+echo -n "Interval(s): "
+for l in "${INTERVALS[@]}"
+do
+    echo -n "$l "
+done
+echo ""
+echo "Temporary directory: $TMP"
+echo "Output directory: $OUT"
+echo "Output surface level file: ${OUTNAME}_surface.sqd"
+echo "Output pressure level file: ${OUTNAME}_pressure.sqd"
 
 VARS="PRATE_SFC_0 TMP_TGL_2 DPT_TGL_2 PRMSL_MSL_0 UGRD_TGL_10 VGRD_TGL_10 TCDC_SFC_0 SNOD_SFC_0 PRES_SFC_0 CWAT_EATM_0 VVEL_ISBL_250 VVEL_ISBL_500 VVEL_ISBL_700 VVEL_ISBL_850"
 LVLVARS="TMP_ISBL HGT_ISBL UGRD_ISBL VGRD_ISBL DEPR_ISBL SPFH_ISBL"
 LEVELS="1015 1000 985 970 950 925 900 875 850 800 750 700 650 600 550 500 450 400 350 300 275 250 225 200 175 150 100 50"
 
-mkdir -p $TMP/grb
-mkdir -p $OUT/{surface,pressure}/querydata
-
-echo "Analysis time: $DATE"
-echo "Model Run: $RUN"
-
-OUTNAME=${DATE}_gem_$AREA
+if [ -z "$DRYRUN" ]; then
+    mkdir -p $TMP/grb
+    mkdir -p $OUT/{surface,pressure}/querydata
+fi
 
 function runBacground()
 {
@@ -57,10 +120,28 @@ function runBacground()
     fi
 }
 
+function testFile()
+{
+    if [ -s $1 ]; then
+    # check return value, break if successful (0)
+    gdalinfo $1 &>/dev/null
+        if [ $? = 0 ]; then
+            return 0
+    else
+            rm -f $1
+            return 1
+        fi
+    else
+        return 1
+    fi
+}
+
 function downloadStep()
 {
+
     if [ $1 = 0 ] && [ $GETPAR = "PRATE_SFC_0" ] ; then break; fi; 
 
+    TEPSTARTTIME=$(date +%s)
     step=$(printf '%03d' $1)
     FILE=CMC_glb_${GETPAR}_latlon.24x.24_${RUNDATE}${RUN}_P${step}.grib2
 
