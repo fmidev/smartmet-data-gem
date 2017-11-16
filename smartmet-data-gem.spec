@@ -1,7 +1,7 @@
 %define smartmetroot /smartmet
 
 Name:           smartmet-data-gem
-Version:        17.7.6
+Version:        17.11.16
 Release:        1%{?dist}.fmi
 Summary:        SmartMet Data GEM
 Group:          System Environment/Base
@@ -10,8 +10,10 @@ URL:            https://github.com/fmidev/smartmet-data-gem
 BuildRoot:      %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 BuildArch:	noarch
 
-Requires:	smartmet-qdtools
-Requires:	bzip2
+%{?el6:Requires: smartmet-qdconversion}
+%{?el7:Requires: smartmet-qdtools}
+Requires:       curl
+Requires:	lbzip2
 
 
 %description
@@ -83,6 +85,8 @@ rm -rf $RPM_BUILD_ROOT
 %{smartmetroot}/*
 
 %changelog
+* Thu Nov 16 2017 Mikko Rauhala <mikko.rauhala@fmi.fi> 17.11.16-1.el7.fmi
+- Improved logging and grib file testing
 * Thu Jul 6 2017 Mikko Rauhala <mikko.rauhala@fmi.fi> 17.7.6-1.el7.fmi
 - Updated script to log stdout if run from terminal
 * Wed Apr 19 2017 Mikko Rauhala <mikko.rauhala@fmi.fi> 17.1.19-1.el6.fmi
