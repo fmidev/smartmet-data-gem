@@ -1,7 +1,7 @@
 %define smartmetroot /smartmet
 
 Name:           smartmet-data-gem
-Version:        17.11.16
+Version:        17.12.7
 Release:        1%{?dist}.fmi
 Summary:        SmartMet Data GEM
 Group:          System Environment/Base
@@ -68,6 +68,7 @@ LEG2_STEP=6
 LEG2_END=168
 
 GRIBTOQD_ARGS=""
+#GRIB_COPY_DEST=
 EOF
 
 install -m 755 %_topdir/SOURCES/smartmet-data-gem/get_gem.sh %{buildroot}%{smartmetroot}/run/data/gem/bin/
@@ -85,6 +86,8 @@ rm -rf $RPM_BUILD_ROOT
 %{smartmetroot}/*
 
 %changelog
+* Thu Dec 7 2017 Mikko Rauhala <mikko.rauhala@fmi.fi> 17.12.7-1%{?dist}.fmi
+- rsync now creates subdirectory for each model run
 * Thu Nov 16 2017 Mikko Rauhala <mikko.rauhala@fmi.fi> 17.11.16-1.el7.fmi
 - Improved logging and grib file testing
 * Thu Jul 6 2017 Mikko Rauhala <mikko.rauhala@fmi.fi> 17.7.6-1.el7.fmi
