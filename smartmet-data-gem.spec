@@ -2,7 +2,7 @@
 
 Name:           smartmet-data-gem
 Version:        17.12.7
-Release:        1%{?dist}.fmi
+Release:        2%{?dist}.fmi
 Summary:        SmartMet Data GEM
 Group:          System Environment/Base
 License:        MIT

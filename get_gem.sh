@@ -157,7 +157,7 @@ function downloadStep()
                 log "Downloaded file: $FILE size: $(stat --printf="%s" ${TMP}/grb/${FIL\
 E}) messages: $(grib_count ${TMP}/grb/${FILE}) time: $(($ENDTIME - $STARTTIME))s wait: $((($ENDTIME - $STEPSTARTTIME) - ($ENDTIME - $STEPSTARTTIME)))s"
                 if [ -n "$GRIB_COPY_DEST" ]; then
-                    rsync -a --relative /gem/$RT_DATE_HH/ ${TMP}/grb/${FILE} $GRIB_COPY_DEST
+                    rsync -ra ${TMP}/grb/${FILE} $GRIB_COPY_DEST/$RT_DATE_HH/
                 fi
                 break;
             fi
