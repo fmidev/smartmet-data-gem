@@ -204,6 +204,11 @@ do
     done
 done
 
+if [ -n "$GRIB_COPY_DEST" ]; then
+    ls -1 $TMP/grb/ > $TMP/${RT_DATE_HH}.txt
+    rsync -a $TMP/${RT_DATE_HH}.txt $GRIB_COPY_DEST/
+fi
+
 log ""
 log "Download size $(du -hs $TMP/grb/|cut -f1) and $(ls -1 $TMP/grb/|wc -l) files."
 
@@ -262,6 +267,7 @@ if [ -s $TMP/${OUTNAME}_surface.sqd ]; then
     fi
 fi
 
+rm -f $TMP/*.txt
 rm -f $TMP/*_gem_*
 rm -f $TMP/grb/CMC*
 rmdir $TMP/grb

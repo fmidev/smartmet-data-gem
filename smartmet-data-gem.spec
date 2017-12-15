@@ -1,8 +1,8 @@
 %define smartmetroot /smartmet
 
 Name:           smartmet-data-gem
-Version:        17.12.7
-Release:        2%{?dist}.fmi
+Version:        17.12.15
+Release:        1%{?dist}.fmi
 Summary:        SmartMet Data GEM
 Group:          System Environment/Base
 License:        MIT
@@ -86,6 +86,8 @@ rm -rf $RPM_BUILD_ROOT
 %{smartmetroot}/*
 
 %changelog
+* Fri Dec 15 2017 Mikko Rauhala <mikko.rauhala@fmi.fi> 17.12.15-1%{?dist}.fmi
+- rsync now creates flagfile when download is complete
 * Thu Dec 7 2017 Mikko Rauhala <mikko.rauhala@fmi.fi> 17.12.7-1%{?dist}.fmi
 - rsync now creates subdirectory for each model run
 * Thu Nov 16 2017 Mikko Rauhala <mikko.rauhala@fmi.fi> 17.11.16-1.el7.fmi
