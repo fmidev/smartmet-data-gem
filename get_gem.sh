@@ -149,7 +149,7 @@ function downloadStep()
 	while [ 1 ]; do
 	    ((count=count+1))
 	    log "Downloading (try: $count) ${FILE}"
-	    URL=http://dd.weather.gc.ca/model_gem_global/25km/grib2/lat_lon/${RT_HOUR}/$step/${FILE}
+	    URL=https://dd.weather.gc.ca/model_gem_global/25km/grib2/lat_lon/${RT_HOUR}/$step/${FILE}
 	    STARTTIME=$(date +%s)
 	    curl -s -S -o $TMP/grb/${FILE} $URL
             ENDTIME=$(date +%s)
