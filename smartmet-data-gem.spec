@@ -2,7 +2,7 @@
 
 Name:           smartmet-data-gem
 Version:        19.10.30
-Release:        1%{?dist}.fmi
+Release:        2%{?dist}.fmi
 Summary:        SmartMet Data GEM
 Group:          System Environment/Base
 License:        MIT
@@ -86,7 +86,7 @@ rm -rf $RPM_BUILD_ROOT
 %{smartmetroot}/*
 
 %changelog
-* Wed Oct 15 2017 Mikko Rauhala <mikko.rauhala@fmi.fi> 19.10.30-1%{?dist}.fmi
+* Wed Oct 30 2019 Mikko Rauhala <mikko.rauhala@fmi.fi> 19.10.30-1%{?dist}.fmi
 - http -> https
 * Fri Dec 15 2017 Mikko Rauhala <mikko.rauhala@fmi.fi> 17.12.15-1%{?dist}.fmi
 - rsync now creates flagfile when download is complete
