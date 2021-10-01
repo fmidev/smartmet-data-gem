@@ -1,8 +1,8 @@
 %define smartmetroot /smartmet
 
 Name:           smartmet-data-gem
-Version:        19.10.30
-Release:        2%{?dist}.fmi
+Version:        21.10.1
+Release:        1%{?dist}.fmi
 Summary:        SmartMet Data GEM
 Group:          System Environment/Base
 License:        MIT
@@ -86,6 +86,8 @@ rm -rf $RPM_BUILD_ROOT
 %{smartmetroot}/*
 
 %changelog
+* Fri Oct 1 2021 Mikko Rauhala <mikko.rauhala@fmi.fi> 21.10.1-1%{?dist}.fmi
+- 25km -> 15km
 * Wed Oct 30 2019 Mikko Rauhala <mikko.rauhala@fmi.fi> 19.10.30-1%{?dist}.fmi
 - http -> https
 * Fri Dec 15 2017 Mikko Rauhala <mikko.rauhala@fmi.fi> 17.12.15-1%{?dist}.fmi
