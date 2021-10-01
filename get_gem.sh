@@ -1,6 +1,6 @@
 #!/bin/sh
 #
-# Finnish Meteorological Institute / Mikko Rauhala (2015-2017)
+# Finnish Meteorological Institute / Mikko Rauhala (2015-2021)
 #
 # SmartMet Data Ingestion Module for GEN Model
 #
@@ -140,7 +140,7 @@ function downloadStep()
 
     STEPSTARTTIME=$(date +%s)
     step=$(printf '%03d' $1)
-    FILE=CMC_glb_${GETPAR}_latlon.24x.24_${RT_DATE}${RT_HOUR}_P${step}.grib2
+    FILE=CMC_glb_${GETPAR}_latlon.15x.15_${RT_DATE}${RT_HOUR}_P${step}.grib2
 
     if $(testFile ${TMP}/grb/${FILE}); then
         log "Cached file: $FILE size: $(stat --printf="%s" ${TMP}/grb/${FILE}) messages:: $(grib_count ${TMP}/grb/${FILE})"
@@ -149,7 +149,7 @@ function downloadStep()
 	while [ 1 ]; do
 	    ((count=count+1))
 	    log "Downloading (try: $count) ${FILE}"
-	    URL=https://dd.weather.gc.ca/model_gem_global/25km/grib2/lat_lon/${RT_HOUR}/$step/${FILE}
+	    URL=https://dd.weather.gc.ca/model_gem_global/15km/grib2/lat_lon/${RT_HOUR}/$step/${FILE}
 	    STARTTIME=$(date +%s)
 	    curl -s -S -o $TMP/grb/${FILE} $URL
             ENDTIME=$(date +%s)
