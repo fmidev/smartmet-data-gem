@@ -133,14 +133,17 @@ function testFile()
     fi
 }
 
-function downloadStep()
-{
+function downloadStep() {
+    step_num="${1:-}"
 
-    if [ $1 = 0 ] && [ $GETPAR = "PRATE_SFC_0" ] ; then break; fi; 
+    if [ "$GETPAR" = "PRATE_SFC_0" ] && [ "$step_num" -eq 0 ]; then
+      echo "Skipping $GETPAR for analysis step"
+      return 0
+    fi
 
     STEPSTARTTIME=$(date +%s)
-    step=$(printf '%03d' $1)
-    FILE=CMC_glb_${GETPAR}_latlon.15x.15_${RT_DATE}${RT_HOUR}_P${step}.grib2
+    step=$(printf '%03d' "$step_num")
+    FILE="CMC_glb_${GETPAR}_latlon.15x.15_${RT_DATE}${RT_HOUR}_P${step}.grib2"
 
     if $(testFile ${TMP}/grb/${FILE}); then
         log "Cached file: $FILE size: $(stat --printf="%s" ${TMP}/grb/${FILE}) messages:: $(grib_count ${TMP}/grb/${FILE})"
@@ -149,7 +152,7 @@ function downloadStep()
 	while [ 1 ]; do
 	    ((count=count+1))
 	    log "Downloading (try: $count) ${FILE}"
-	    URL=https://dd.weather.gc.ca/model_gem_global/15km/grib2/lat_lon/${RT_HOUR}/$step/${FILE}
+	    URL=https://dd.weather.gc.ca/today/model_gem_global/15km/grib2/lat_lon/${RT_HOUR}/$step/${FILE}
 	    STARTTIME=$(date +%s)
 	    curl -s -S -o $TMP/grb/${FILE} $URL
             ENDTIME=$(date +%s)
