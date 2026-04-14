@@ -1,0 +1,120 @@
+name: Build RPM Packages
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+  workflow_dispatch:
+
+jobs:
+  version:
+    name: Read version from spec file
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.specver.outputs.version }}
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v5
+
+      - name: Extract spec version
+        id: specver
+        run: |
+          VERSION=$(awk '/^Version:/ {print $2; exit}' smartmet-data-gem.spec)
+          if [ -z "$VERSION" ]; then
+            echo "Failed to read Version from smartmet-data-gem.spec" >&2
+            exit 1
+          fi
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+          echo "Spec version: $VERSION"
+
+  build-rpms:
+    name: Build RPM on ${{ matrix.os }}
+    needs: version
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        os: ['rocky8', 'rocky9', 'rocky10']
+        include:
+          - os: rocky8
+            tag: '8'
+          - os: rocky9
+            tag: '9'
+          - os: rocky10
+            tag: '10'
+
+    container:
+      image: rockylinux/rockylinux:${{ matrix.tag }}
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v5
+
+      - name: Install build dependencies
+        run: |
+          dnf -y install \
+            rpm-build \
+            rpmdevtools \
+            gcc \
+            make \
+            rpm-devel \
+            tree
+
+      - name: Set up RPM build environment
+        run: |
+          mkdir -p ~/rpmbuild/{BUILD,RPMS,SOURCES,SPECS,SRPMS}
+          mkdir -p ~/rpmbuild/SOURCES/smartmet-data-gem
+          cp ./*.spec ~/rpmbuild/SPECS/
+          cp -r ./* ~/rpmbuild/SOURCES/smartmet-data-gem
+
+      - name: Build RPM package
+        run: |
+          cd ~/rpmbuild/SPECS
+          rpmbuild -ba *.spec
+
+      - name: List generated RPMs
+        run: |
+          tree ~/rpmbuild/RPMS/
+          tree ~/rpmbuild/SRPMS/
+
+      - name: Upload RPM artifacts
+        uses: actions/upload-artifact@v6
+        with:
+          name: rpms-${{ matrix.os }}
+          path: |
+            ~/rpmbuild/RPMS/
+            ~/rpmbuild/SRPMS/
+          retention-days: 7
+
+  create-release:
+    needs: [version, build-rpms]
+    if: github.event_name == 'push' && github.ref == 'refs/heads/master'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Download all artifacts
+        uses: actions/download-artifact@v7
+        with:
+          path: artifacts
+
+      - name: Create Release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: v${{ needs.version.outputs.version }}
+        run: |
+          mapfile -d '' FILES < <(find artifacts -type f -name '*.rpm' -print0)
+          if [ ${#FILES[@]} -eq 0 ]; then
+            echo "No RPM files found under artifacts/" >&2
+            exit 1
+          fi
+          if gh release view "$TAG" --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1; then
+            echo "Release $TAG already exists; replacing assets"
+            gh release upload "$TAG" "${FILES[@]}" --clobber --repo "$GITHUB_REPOSITORY"
+          else
+            echo "Creating release $TAG"
+            gh release create "$TAG" "${FILES[@]}" \
+              --title "$TAG" \
+              --generate-notes \
+              --repo "$GITHUB_REPOSITORY"
+          fi
