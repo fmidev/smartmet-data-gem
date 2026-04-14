@@ -1,7 +1,7 @@
 %define smartmetroot /smartmet
 
 Name:           smartmet-data-gem
-Version:        21.10.1
+Version:        26.4.14
 Release:        1%{?dist}.fmi
 Summary:        SmartMet Data GEM
 Group:          System Environment/Base
@@ -10,11 +10,9 @@ URL:            https://github.com/fmidev/smartmet-data-gem
 BuildRoot:      %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 BuildArch:	noarch
 
-%{?el6:Requires: smartmet-qdconversion}
-%{?el7:Requires: smartmet-qdtools}
-Requires:       curl
+Requires: curl
 Requires:	lbzip2
-
+Requires: smartmet-qdtools
 
 %description
 SmartMet data ingest module for Canadian GEM numerical weather model.
@@ -86,6 +84,8 @@ rm -rf $RPM_BUILD_ROOT
 %{smartmetroot}/*
 
 %changelog
+* Tue Apr 14 2026 Mikko Rauhala <mikko.rauhala@fmi.fi> 26.4.14-1%{?dist}.fmi
+- Bump version for previous url fix
 * Fri Oct 1 2021 Mikko Rauhala <mikko.rauhala@fmi.fi> 21.10.1-1%{?dist}.fmi
 - 25km -> 15km
 * Wed Oct 30 2019 Mikko Rauhala <mikko.rauhala@fmi.fi> 19.10.30-1%{?dist}.fmi
